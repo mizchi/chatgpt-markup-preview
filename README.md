@@ -25,8 +25,6 @@ Example.
 
 ### HTML + Tailwind
 
-English
-
 ````markdown
 Generate a button element
 
@@ -42,33 +40,31 @@ Output Example:
 ```
 ````
 
-Japanese
+### HTML + CSS Animation
 
 ````markdown
-ボタン要素を生成してください。
+Generate Loader
 
-- html で記述してください
-- 装飾には tailwind の class を使ってください
-- コードブロックの属性は ```html+preview としてください
-- コード以外は出力しないでください
+- Write it in html
+- Code block attributes should be ``html+preview
+- Do not output anything but code
 
-出力例
+Example output
 
 ```html+preview
-<div class="">Click Me</div>
+<style>
+.loader {}
+</style>
+<div class="loader"></div>
 ```
 ````
 
 ### React + Tailwind
 
-#### Button
-
-English
-
 ````markdown
 Generate a button component.
 
-## Condition
+Condition
 
 - Use react+tsx to write the code. jsx: "react-jsx", so import is not required.
 - Use tailwind for decoration. css import is not required.
@@ -76,7 +72,7 @@ Generate a button component.
 - Do not output anything but code
 - export previewProps that satisfy the type ``props
 
-## Example output
+Example output
 
 Example output: ```tsx+preview
 type ButtonProps = { name: string }
@@ -85,48 +81,18 @@ export default function Button(props: Props) {
 }
 export const previewProps = {}
 ```
-
-Translated with www.DeepL.com/Translator (free version)
 ````
 
-Japanese
-
-````markdown
-ボタンコンポーネント を生成してください。
-
-## 条件
-
-- react+tsx で記述してください。 jsx: "react-jsx" なので import は不要です。
-- 装飾には tailwind を使ってください。css の import は不要です。
-- コードブロックの属性は ```tsx+preview としてください
-- コード以外は出力しないでください
-- props の型を満たす previewProps を export してください
-
-## 出力例
-
-```tsx+preview
-type ButtonProps = { name: string }
-export default function Button(props: Props) {
-  return <></>
-}
-export const previewProps = {}
-```
-````
-
-#### Form
-
-English
+### Form
 
 ````markdown
 Generate form components.
-
-## Props Type
 
 FormProps = React.FormHTMLAttributes<HTMLFormElement> & {
   fields: Array<{label: string, value: string}>
 }
 
-## Conditions
+Conditions
 
 - Please write in react+tsx. jsx: "react-jsx" so import is not necessary.
 - Use tailwind for decoration. css import is not required.
@@ -134,37 +100,7 @@ FormProps = React.FormHTMLAttributes<HTMLFormElement> & {
 - Do not output anything but code
 - export previewProps that satisfy the type ``props
 
-## Example output
-
-```tsx+preview
-type FormProps = { name: string }
-export default function Form(props: Props) {
-  return <></>
-}
-export const previewProps = {}
-```
-
-Translated with www.DeepL.com/Translator (free version)
-````
-
-````markdown
-フォームコンポーネントを生成してください。
-
-## Props Type
-
-type FormProps = React.FormHTMLAttributes<HTMLFormElement> & {
-  fields: Array<{label: string, value: string}>
-}
-
-## 条件
-
-- react+tsx で記述してください。 jsx: "react-jsx" なので import は不要です。
-- 装飾には tailwind を使ってください。css の import は不要です。
-- コードブロックの属性は ```tsx+preview としてください
-- コード以外は出力しないでください
-- props の型を満たす previewProps を export してください
-
-## 出力例
+Example output
 
 ```tsx+preview
 type FormProps = { name: string }
@@ -184,3 +120,7 @@ $ pnpm build
 
 - Open chrome://extensions
 - Load `dist` dir
+
+## LICENSE
+
+MIT
