@@ -1,0 +1,28 @@
+name: upload extension to github artifacts
+
+on:
+  push:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: pnpm-lock.json
+      - run: corepack enable npm pnpm
+      - run: pnpm install
+      - run: pnpm build
+      - uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r extension.zip dist
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: extension.zip
