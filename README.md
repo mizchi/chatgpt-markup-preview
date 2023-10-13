@@ -30,7 +30,7 @@ Generate a button element
 
 - Describe it in html
 - Use tailwind class for decoration
-- Code block attributes should be ``html+preview
+- Code block attributes should be ```html+preview
 - Do not output anything but code
 
 Output Example:
@@ -46,7 +46,7 @@ Output Example:
 Generate Loader
 
 - Write it in html
-- Code block attributes should be ``html+preview
+- Code block attributes should be ```html+preview
 - Do not output anything but code
 
 Example output
