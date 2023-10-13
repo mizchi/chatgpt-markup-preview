@@ -1,4 +1,4 @@
-# ChatGPT Markup Preview Extension
+# ChatGPT Markup Preview Extension (PoC)
 
 Chrome Extension to preview markup in chat.openai.com
 
