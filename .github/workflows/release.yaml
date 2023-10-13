@@ -2,6 +2,8 @@ name: upload extension to github artifacts
 
 on:
   push:
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -25,3 +27,5 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: extension.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
