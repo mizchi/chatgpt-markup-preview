@@ -15,6 +15,18 @@ Example.
 
 ![Alt text](assets/image1.png)
 
+## How it works
+
+- Parse code blocks from chatgpt conversations
+- Load Tailwind CDN https://tailwindcss.com/docs/installation/play-cdn
+- `html+preview`
+  - Embed
+- `tsx+preview`
+  - Transpile code as typescript
+  - Run in quickjs
+  - renderToStaticMarkup with previewProps
+  - Embed
+
 ## Install
 
 - Download latest `chatgpt-markup-preview.zip` from https://github.com/mizchi/chatgpt-markup-preview/releases
