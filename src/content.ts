@@ -1,73 +1,72 @@
 import { render, h } from "preact";
-import { Preview } from "./contentRenderer";
+import { Preview } from "./Preview";
+import { createRenderer } from "./quickjsHelpers";
+import prebuiltSource from "./gen/prebuilt.js?raw";
 
-console.log("[crx] eval");
+// console.log("[crx] eval");
 
-// const xorshift = (() => {
-//   let x = 123456789;
-//   let y = 362436069;
-//   let z = 521288629;
-//   let w = 88675123;
-//   return () => {
-//     let t = x ^ (x << 11);
-//     x = y; y = z; z = w;
-//     return w = (w ^ (w >>> 19)) ^ (t ^ (t >>> 8));
-//   };
-// })();
-
-const stringToHash = (str: string) => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return hash.toString(32);
-}
-
-// function isGenerating() {
-//   const el = document.querySelector('[data-testid="send-button"]') as HTMLButtonElement | null;
-//   if (!el) return false;
-//   return el.disabled;
-// }
-
-function handleCodeBlock(codeBlock: HTMLPreElement, hlel: HTMLDivElement) {
-  const lastHash = hlel.getAttribute('data-ext-preview');
-  const content = (hlel as HTMLElement).innerText;
-  const currentHash = stringToHash(content);
-  if (lastHash === currentHash) return;
-  hlel.setAttribute('data-ext-preview', currentHash);
-  console.log("[new]", hlel);
-  const lang = hlel.className.split(' ').find((className) => className.startsWith('language-'))?.replace('language-', '');
-  if (lang !== 'html') return;
-  console.log("render start!");
-
-  const previewElement = document.createElement('div');
-  previewElement.className = 'ext-preview-root w-full h-full';
-  codeBlock.appendChild(previewElement);
-  render(h(Preview, {lang, content}), previewElement.parentElement!,  previewElement);
-}
-
-function updatePreviews() {
-  const elements = document.querySelectorAll('.hljs');
-  for (const el of elements) {
-    const codeBlockPre = el.closest('pre');
-    if (codeBlockPre) {
-      handleCodeBlock(codeBlockPre, el as HTMLDivElement);
+async function getPreviewResult(lang: string | undefined, content: string) {
+  if (lang === 'html+preview') {
+    // ok
+    return content;
+  };
+  if (lang === 'tsx+preview') {
+    try {
+      const transpiled = await transpile(content);
+      const renderer = await getRenderer();
+      return await renderer.render(transpiled, {name: "Xxx"});  
+    } catch (err) {
+      if (err instanceof Error) {
+        return err.message;
+      }
     }
   }
+  return '';
 }
 
 async function start() {
   await ensurePresentation();
-
   // init once
   updatePreviews();
-
   setInterval(() => {
-    // if (isGenerating()) return;
+    if (!location.pathname.startsWith('/c/')) {
+      return;
+    }
     updatePreviews();
-  }, 500);
+  }, 1000);
 
+  return;
+
+  async function updatePreviews() {
+    const elements = [...document.querySelectorAll('.hljs')] as HTMLDivElement[];
+    if (elements.length > 0) {
+      await loadTailwind();
+    };
+
+    // const elements = [...document.querySelectorAll('pre > code')] as HTMLDivElement[];
+    for (const el of elements) {
+      handleCodeBlock(el);
+    }
+    return;
+  }
+
+  async function handleCodeBlock(hlel: HTMLDivElement) {
+    const codeBlock = hlel.closest('pre')!;
+    const lastHash = hlel.getAttribute('data-preview-hash');
+    const content = (hlel as HTMLElement).innerText!;
+    const currentHash = stringToHash(content);
+    if (lastHash === currentHash) return;
+    hlel.setAttribute('data-preview-hash', currentHash);
+    const lang = hlel.className.split(' ').find((className) => className.startsWith('language-'))?.replace('language-', '');
+    const result = await getPreviewResult(lang, content);
+    if (!codeBlock.lastElementChild!.classList.contains('preview-root')) {
+      const previewElement = document.createElement('div');
+      codeBlock.appendChild(previewElement);
+    }
+    // @ts-ignore
+    render(h(Preview, {lang, content: result}), codeBlock,  codeBlock.lastElementChild!);  
+  }
+  
   async function ensurePresentation() {
     await new Promise<void>(r => {
       const id = setInterval(() => {
@@ -82,3 +81,41 @@ async function start() {
 }
 
 start().catch(console.error);
+
+// ----
+
+async function loadTailwind() {
+  // @ts-ignore
+  await import('./tailwind.prebuilt');
+}
+
+function stringToHash(str: string) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return hash.toString(32);
+}
+
+let _renderer: Awaited<ReturnType<typeof createRenderer>> | null = null;
+async function getRenderer() {
+  if (!_renderer) {
+    _renderer = await createRenderer(prebuiltSource);
+  }
+  return _renderer;
+}
+
+let _ts: typeof import('typescript') | null = null;
+async function transpile(code: string) {
+  if (!_ts) {
+    _ts = await import('typescript');
+  }
+  return _ts.transpile(code, {
+    jsx: _ts.JsxEmit.ReactJSX,
+    target: _ts.ScriptTarget.ESNext,
+    module: _ts.ModuleKind.ESNext,
+  });
+  // return _ts;
+}
+

@@ -1,5 +1,4 @@
-import {useRef, useEffect, useState, Ref} from "preact/hooks";
-
+import { Ref, useEffect, useRef, useState } from "preact/hooks";
 const previewUrl = chrome.runtime.getURL('../pages/preview.html');
 
 const useLoadedIframe = (ref: Ref<HTMLIFrameElement>) => {
@@ -31,7 +30,8 @@ const useLoadedIframe = (ref: Ref<HTMLIFrameElement>) => {
   }, []);
   return iframe;
 }
-export function Preview(props: {lang?: string, content: string}) {
+
+export function IframePreview(props: {lang?: string, content: string}) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const loadedIframe = useLoadedIframe(iframeRef);
 
@@ -66,12 +66,13 @@ export function Preview(props: {lang?: string, content: string}) {
 
   return <div class="h-full w-full">
     <h2>Preview</h2>
-    
-    <iframe
-      class="w-full"
-      ref={iframeRef}
-      src={previewUrl} 
-      sandbox="allow-scripts allow-popups allow-modals"
-    />
+    <div class="w-full relative">
+      <iframe
+        class="w-full"
+        ref={iframeRef}
+        src={previewUrl} 
+        sandbox="allow-scripts allow-popups allow-modals"
+      />
+    </div>
   </div>;
 }
