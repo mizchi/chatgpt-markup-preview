@@ -7,14 +7,17 @@ export {
   Fragment,
 } from "react/jsx-runtime";
 
-// import * as React from "react";
 export {
+  forwardRef,
+  createRef,
+  createContext,
   createElement,
   cloneElement,
   isValidElement,
   useCallback,
   useEffect,
   useLayoutEffect,
+  useSyncExternalStore,
   useMemo,
   useRef,
   useContext,
@@ -28,7 +31,8 @@ export {
   useInsertionEffect,
 } from "react";
 
-export {default as default} from "react";
+import * as React from "react";
+export default React;
 
 export { renderToStaticMarkup } from "react-dom/server";
 

@@ -1,27 +1,97 @@
-# React + TypeScript + Vite
+# ChatGPT Markup Preview Extension
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Chrome Extension
 
-Currently, two official plugins are available:
+## What's this
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- `html+preview`
+- `tsx+preview`
 
-## Expanding the ESLint configuration
+## Install
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+TBD
 
-- Configure the top-level `parserOptions` property like this:
+## Prompt Example
 
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
+### HTML + Tailwind
+
+````markdown
+ボタン要素を生成してください。
+
+- html で記述してください
+- 装飾には tailwind の class を使ってください
+- コードブロックの属性は ```html+preview としてください
+- コード以外は出力しないでください
+
+出力例
+
+```html+preview
+<div class="">Click Me</div>
+```
+````
+
+### React + Tailwind
+
+#### Button
+
+````markdown
+ボタンコンポーネント を生成してください。
+
+## 条件
+
+- react+tsx で記述してください。 jsx: "react-jsx" なので import は不要です。
+- 装飾には tailwind を使ってください。css の import は不要です。
+- コードブロックの属性は ```tsx+preview としてください
+- コード以外は出力しないでください
+- props の型を満たす previewProps を export してください
+
+## 出力例
+
+```tsx+preview
+type ButtonProps = { name: string }
+export default function Button(props: Props) {
+  return <></>
+}
+export const previewProps = {}
+```
+````
+
+#### Form
+
+````markdown
+フォームコンポーネントを生成してください。
+
+## Props Type
+
+type FormProps = React.FormHTMLAttributes<HTMLFormElement> & {
+  fields: Array<{label: string, value: string}>
+}
+
+## 条件
+
+- react+tsx で記述してください。 jsx: "react-jsx" なので import は不要です。
+- 装飾には tailwind を使ってください。css の import は不要です。
+- コードブロックの属性は ```tsx+preview としてください
+- コード以外は出力しないでください
+- props の型を満たす previewProps を export してください
+
+## 出力例
+
+```tsx+preview
+type FormProps = { name: string }
+export default function Form(props: Props) {
+  return <></>
+}
+export const previewProps = {}
+```
+````
+
+## Local Install
+
+```
+$ pnpm install
+$ pnpm build
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+- Open chrome://extensions
+- Load `dist` dir

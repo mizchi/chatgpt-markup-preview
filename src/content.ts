@@ -1,9 +1,6 @@
 import { render, h } from "preact";
 import { Preview } from "./Preview";
 import { createRenderer } from "./quickjsHelpers";
-import prebuiltSource from "./gen/prebuilt.js?raw";
-
-// console.log("[crx] eval");
 
 async function getPreviewResult(lang: string | undefined, content: string) {
   if (lang === 'html+preview') {
@@ -14,7 +11,7 @@ async function getPreviewResult(lang: string | undefined, content: string) {
     try {
       const transpiled = await transpile(content);
       const renderer = await getRenderer();
-      return await renderer.render(transpiled, {name: "Xxx"});  
+      return await renderer.render(transpiled);  
     } catch (err) {
       if (err instanceof Error) {
         return err.message;
@@ -50,21 +47,31 @@ async function start() {
     return;
   }
 
-  async function handleCodeBlock(hlel: HTMLDivElement) {
-    const codeBlock = hlel.closest('pre')!;
-    const lastHash = hlel.getAttribute('data-preview-hash');
-    const content = (hlel as HTMLElement).innerText!;
+  async function handleCodeBlock(el: HTMLDivElement) {
+    const lastHash = el.getAttribute('data-preview-hash');
+    const content = (el as HTMLElement).innerText!;
     const currentHash = stringToHash(content);
     if (lastHash === currentHash) return;
-    hlel.setAttribute('data-preview-hash', currentHash);
-    const lang = hlel.className.split(' ').find((className) => className.startsWith('language-'))?.replace('language-', '');
-    const result = await getPreviewResult(lang, content);
-    if (!codeBlock.lastElementChild!.classList.contains('preview-root')) {
-      const previewElement = document.createElement('div');
-      codeBlock.appendChild(previewElement);
+    el.setAttribute('data-preview-hash', currentHash);
+
+    const run = async () => {
+      const lang = el.className.split(' ').find((className) => className.startsWith('language-'))?.replace('language-', '');
+      const result = await getPreviewResult(lang, content);
+  
+      const codeBlock = el.closest('pre')!;  
+      if (!codeBlock.lastElementChild!.classList.contains('preview-root')) {
+        const previewElement = document.createElement('div');
+        codeBlock.appendChild(previewElement);
+      }
+      // @ts-ignore
+      render(h(Preview, {lang, content: result}), codeBlock,  codeBlock.lastElementChild!);    
     }
-    // @ts-ignore
-    render(h(Preview, {lang, content: result}), codeBlock,  codeBlock.lastElementChild!);  
+    setTimeout(() => {
+      const next = el.innerText;
+      if (next === content) {
+        run();
+      }
+    }, 1000);
   }
   
   async function ensurePresentation() {
@@ -101,7 +108,12 @@ function stringToHash(str: string) {
 let _renderer: Awaited<ReturnType<typeof createRenderer>> | null = null;
 async function getRenderer() {
   if (!_renderer) {
-    _renderer = await createRenderer(prebuiltSource);
+    const { default: prebuiltSource } = await import('./gen/prebuilt.js?raw');
+    // const { default: headlessuiReact } = await import('./gen/headlessui-react.js?raw');
+    const libs = {
+      // "@headlessui/react": headlessuiReact,
+    }
+    _renderer = await createRenderer(prebuiltSource, libs);
   }
   return _renderer;
 }

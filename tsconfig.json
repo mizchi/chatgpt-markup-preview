@@ -22,6 +22,6 @@
     "resolvePackageJsonExports": true,
     "noFallthroughCasesInSwitch": true,
   },
-  "include": ["src", "manifest.json", "vite.config.ts"],
+  "include": ["src", "manifest.json", "vite.config.ts", "pages"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

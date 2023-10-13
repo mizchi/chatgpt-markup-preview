@@ -7,20 +7,37 @@ class TextEncoder {
   }
 }
 `;
-export async function createRenderer(prebuiltSource: string) {
+export async function createRenderer(prebuiltSource: string, libs: { [key: string]: string } = {}) {
   const module = await newQuickJSAsyncWASMModule();
-  const runtime = module.newRuntime();
+  const runtime = module.newRuntime({});
 
   let id = 0;
   let currentCode = "";
   runtime.setModuleLoader((url) => {
     if (url === `source${id}`) return currentCode;
-    if (url === "react" || url === "react/jsx-runtime" || url === "prebuilt") {
+    if (libs[url]) return libs[url];
+    if (url === "react" || url === 'react-dom' || url === "react/jsx-runtime" || url === "prebuilt") {
       return `${TextEncoderMock}${prebuiltSource}`;
     }
     return "";
   });
   const context = runtime.newContext();
+
+  const consoleObj = context.newObject();
+  for (const key of Object.keys(console)) {
+    const consoleFunc = context.newFunction(key, (...args: any) => {
+      const results: any = [];
+      for (const item of args) {
+        results.push(context.dump(item));
+        item.dispose();
+      }
+      (console as any)[key](...results);
+      // console[key](value);
+      // arg.dispose();
+    });
+    context.setProp(consoleObj, key, consoleFunc);
+  }
+  context.setProp(context.global, "console", consoleObj);
   context.setProp(context.global, "debug", context.newFunction("debug", (arg: any) => {
     const value = context.dump(arg);
     console.log("[debug]", value);
@@ -32,9 +49,9 @@ export async function createRenderer(prebuiltSource: string) {
     dispose() {
       runtime.dispose();
     },
-    async render(newCode: string, props: any = {}) {
+    async render(newCode: string) {
       const TMP_OUTPUT_KEY = "__tmp__";
-      const code = buildEvalCode(newCode, props);
+      const code = buildEvalCode(newCode);
       const handle = await context.evalCodeAsync(code);
       context.unwrapResult(handle);
       const value = context.getProp(context.global, TMP_OUTPUT_KEY);
@@ -44,15 +61,19 @@ export async function createRenderer(prebuiltSource: string) {
     }
   }
 
-  function buildEvalCode(newCode: string, props: any) {
+  function buildEvalCode(newCode: string) {
     id++;
     currentCode = newCode;
+
+    let importComponent = `import Component from 'source${id}'`;
+    if (currentCode.includes("previewProps")) {
+      importComponent = `import Component, { previewProps } from 'source${id}'`;
+    }
     const evalCode = `
 import { jsx } from "react/jsx-runtime";
 import { renderToStaticMarkup } from "prebuilt";
-import Component from "source${id}";
-const props = JSON.parse(\`${JSON.stringify(props)}\`);
-globalThis.${TMP_OUTPUT_KEY} = renderToStaticMarkup(jsx(Component, props));
+${importComponent};
+globalThis.${TMP_OUTPUT_KEY} = renderToStaticMarkup(jsx(Component, previewProps));
 `.trim();
     return evalCode;
   }

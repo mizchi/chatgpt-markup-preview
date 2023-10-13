@@ -19,20 +19,16 @@ export default defineConfig({
           "activeTab",
           "scripting"
         ],
-        name: "CRXJS React Vite Example",
+        name: "ChatGPT Markup Preview",
         version: "1.0.0",
         action: { "default_popup": "index.html" },
         content_security_policy: {
           extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';",
           sandbox: "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'self';"
         },
-        // background: {
-        //   service_worker: "src/background.ts",
-        //   type: "module"
-        // },
         content_scripts: [
           {
-            "matches": [ "https://chat.openai.com/c/*"],
+            "matches": [ "https://chat.openai.com/*"],
             "js": ["src/content.ts"],
             "run_at": "document_idle"
           },
