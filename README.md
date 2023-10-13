@@ -2,12 +2,18 @@
 
 Chrome Extension to preview markup in chat.openai.com
 
+This extension renders html preview by code block outputs.
+
+- code block `html+preview` => preview html directly
+- code block `tsx+preview` => renderToStaticMarkup as typescript react component
+- Tailwind loaded
+- Click 📎 to copy as an image (for image input)
+
+Example.
+
 ![Alt text](assets/image0.png)
 
 ![Alt text](assets/image1.png)
-
-- language `html+preview` => preview html directly
-- language `tsx+preview` => renderToStaticMarkup as typescript react component
 
 ## Install
 
